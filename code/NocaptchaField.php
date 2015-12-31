@@ -1,5 +1,6 @@
 <?php
-class NocaptchaField extends FormField {
+class NocaptchaField extends FormField
+{
     /**
      * Recaptcha Site Key
      * @config NocaptchaField.site_key
@@ -63,7 +64,8 @@ class NocaptchaField extends FormField {
      * @param {string} $title The human-readable field label.
      * @param {mixed} $value The value of the field (unused)
      */
-    public function __construct($name, $title=null, $value=null) {
+    public function __construct($name, $title=null, $value=null)
+    {
         parent::__construct($name, $title, $value);
         
         $this->_captchaTheme=self::config()->default_theme;
@@ -75,11 +77,12 @@ class NocaptchaField extends FormField {
      * @param {array} $properties Array of properties for the form element (not used)
      * @return {string} Rendered field template
      */
-    public function Field($properties=array()) {
+    public function Field($properties=array())
+    {
         $siteKey=self::config()->site_key;
         $secretKey=self::config()->secret_key;
         
-        if(empty($siteKey) || empty($secretKey)) {
+        if (empty($siteKey) || empty($secretKey)) {
             user_error('You must configure Nocaptcha.site_key and Nocaptcha.secret_key, you can retrieve these at https://google.com/recaptcha', E_USER_ERROR);
         }
         
@@ -107,13 +110,14 @@ class NocaptchaField extends FormField {
      * @param {Validator} $validator Validator to send errors to
      * @return {bool} Returns boolean true if valid false if not
      */
-    public function validate($validator) {
-        if(!isset($_REQUEST['g-recaptcha-response'])) {
+    public function validate($validator)
+    {
+        if (!isset($_REQUEST['g-recaptcha-response'])) {
             $validator->validationError($this->name, _t('NocaptchaField.EMPTY', '_Please answer the captcha, if you do not see the captcha you must enable JavaScript'), 'validation');
             return false;
         }
         
-        if(!function_exists('curl_init')) {
+        if (!function_exists('curl_init')) {
             user_error('You must enable php-curl to use this field', E_USER_ERROR);
             return false;
         }
@@ -121,11 +125,11 @@ class NocaptchaField extends FormField {
         $url='https://www.google.com/recaptcha/api/siteverify?secret='.self::config()->secret_key.'&response='.rawurlencode($_REQUEST['g-recaptcha-response']).'&remoteip='.rawurlencode($_SERVER['REMOTE_ADDR']);
         $ch=curl_init($url);
         $proxy_server=self::config()->proxy_server;
-        if(!empty($proxy_server)){
+        if (!empty($proxy_server)) {
             curl_setopt($ch, CURLOPT_PROXY, $proxy_server);
             
             $proxy_auth=self::config()->proxy_auth;
-            if(!empty($proxy_auth)){
+            if (!empty($proxy_auth)) {
                 curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_auth);
             }
         }
@@ -138,12 +142,12 @@ class NocaptchaField extends FormField {
         curl_setopt($ch, CURLOPT_USERAGENT, str_replace(',', '/', 'SilverStripe '.$lnm->CMSVersion()));
         $response=json_decode(curl_exec($ch), true);
         
-        if(is_array($response)) {
-            if(array_key_exists('success', $response) && $response['success']==false) {
+        if (is_array($response)) {
+            if (array_key_exists('success', $response) && $response['success']==false) {
                 $validator->validationError($this->name, _t('NocaptchaField.EMPTY', '_Please answer the captcha, if you do not see the captcha you must enable JavaScript'), 'validation');
                 return false;
             }
-        }else {
+        } else {
             $validator->validationError($this->name, _t('NocaptchaField.VALIDATE_ERROR', '_Captcha could not be validated'), 'validation');
             return false;
         }
@@ -157,7 +161,8 @@ class NocaptchaField extends FormField {
      * @param {string} $value Theme to set it to, currently the api supports light and dark
      * @return {NocaptchaField}
      */
-    public function setTheme($value) {
+    public function setTheme($value)
+    {
         $this->_captchaTheme=$value;
         
         return $this;
@@ -167,7 +172,8 @@ class NocaptchaField extends FormField {
      * Gets the theme for this captcha
      * @return {string}
      */
-    public function getCaptchaTheme() {
+    public function getCaptchaTheme()
+    {
         return $this->_captchaTheme;
     }
     
@@ -176,7 +182,8 @@ class NocaptchaField extends FormField {
      * @param {string} $value Type to set it to, currently the api supports audio and image
      * @return {NocaptchaField}
      */
-    public function setCaptchaType($value) {
+    public function setCaptchaType($value)
+    {
         $this->_captchaType=$value;
         
         return $this;
@@ -186,7 +193,8 @@ class NocaptchaField extends FormField {
      * Gets the type for this captcha
      * @return {string}
      */
-    public function getCaptchaType() {
+    public function getCaptchaType()
+    {
         return $this->_captchaType;
     }
     
@@ -194,8 +202,8 @@ class NocaptchaField extends FormField {
      * Gets the site key configured via NocaptchaField.site_key this is used in the template
      * @return {string}
      */
-    public function getSiteKey() {
+    public function getSiteKey()
+    {
         return self::config()->site_key;
     }
 }
-?>
